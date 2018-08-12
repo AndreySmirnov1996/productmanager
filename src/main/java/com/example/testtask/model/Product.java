@@ -1,6 +1,8 @@
 package com.example.testtask.model;
 
 import javax.persistence.*;
+import java.util.Set;
+import java.util.StringJoiner;
 
 @Entity
 @Table(name = "product")
@@ -17,12 +19,14 @@ public class Product {
     private String description;
 
     @Column(name = "category")
-    private String category;
+    @JoinColumn(name = "id")
+    @ManyToMany(fetch = FetchType.EAGER)
+    private Set<Category> category;
 
     public Product() {
     }
 
-    public Product(String name, String description, String category) {
+    public Product(String name, String description, Set<Category> category) {
         this.name = name;
         this.description = description;
         this.category = category;
@@ -40,7 +44,7 @@ public class Product {
         this.description = description;
     }
 
-    public void setCategory(String category) {
+    public void setCategory(Set<Category> category) {
         this.category = category;
     }
 
@@ -56,7 +60,16 @@ public class Product {
         return description;
     }
 
-    public String getCategory() {
+    public Set<Category> getCategory() {
         return category;
     }
+
+    public String getCategories() {
+        StringJoiner stringJoiner = new StringJoiner(" ");
+        for (Category c : category)
+            stringJoiner.add(c.getCategory());
+        return stringJoiner.toString();
+    }
+
+
 }

@@ -4,19 +4,6 @@
 <head>
     <title>TestTaskROI</title>
     <style>
-        /*table {*/
-            /*font-family: arial, sans-serif;*/
-            /*border-collapse: collapse;*/
-            /*width: 100%;*/
-        /*}*/
-        /*td, th {*/
-            /*border: 1px solid #dddddd;*/
-            /*text-align: left;*/
-            /*padding: 8px;*/
-        /*}*/
-        /*tr:nth-child(even) {*/
-            /*background-color: #dddddd;*/
-        /*}*/
         table {
             font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
             font-size: 14px;
@@ -73,7 +60,11 @@
         <tr>
             <td>${list.name}</td>
             <td>${list.description}</td>
-            <td>${list.category}</td>
+            <td>
+            <c:forEach var = "category" items = "${list.category}">
+                ${category.category}<br>
+            </c:forEach>
+            </td>
             <td>
                 <a href="/edit/${list.id}">Edit</a>
                 <a href="/delete/${list.id}">Delete</a>
@@ -82,6 +73,15 @@
     </c:forEach>
 </table>
 <hr/>
+
+<form method="post" action="/search">
+    <select  name="category" required>
+        <c:forEach var = "category" items = "${categories}">
+            <option value="${category}">${category}</option>
+        </c:forEach>
+    </select>
+    <input type="submit" value="Submit" >
+</form>
 
 <form method="post" action="/save">
     <input type="hidden" name="id" value=""/>

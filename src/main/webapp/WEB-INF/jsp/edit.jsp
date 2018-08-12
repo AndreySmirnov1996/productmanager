@@ -20,16 +20,16 @@
 </head>
 <body>
 <hr/>
-<form method="post" action="/save">
-    <%--<input type="hidden" name="id" value="${lists.id}"/><br/>--%>
+<form method="put" action="/update">
+    <input type="hidden" name="id" value="${list.id}"/><br/>
     name:<br>
-    <input type="text" name="name" value="${lists.name}"/>
+    <input type="text" name="name" value="${list.name}"/>
     <br>
     description:<br>
-    <input type="text" name="description" value="${lists.description}">
+    <input type="text" name="description" value="${list.description}">
     <br>
     category:<br>
-    <input type="text" name="category" value="${lists.category}">
+    <input type="text" name="category" value="${list.getCategories()}" >
     <br><br>
     <input type="submit" value="Submit">
 </form>
