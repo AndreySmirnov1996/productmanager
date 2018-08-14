@@ -55,7 +55,6 @@
         <th>name</th>
         <th>description</th>
         <th>category</th>
-        <th>action</th>
     </tr>
     <c:forEach var = "list" items = "${lists}">
         <tr>
@@ -66,44 +65,9 @@
                 ${category.category}<br>
             </c:forEach>
             </td>
-            <td>
-                <a href="/edit/${list.id}">Edit</a>
-                <a href="/delete/${list.id}">Delete</a>
-            </td>
         </tr>
     </c:forEach>
 </table>
 <hr/>
-
-<br>
-<form method="post" action="/searchsubname">
-    Search by name : <input type="text" name="subName"/>
-    <input type="submit" value="Search" >
-</form>
-<br>
-
-<form method="post" action="/searchcategory">
-    <select  name="category" required>
-        <c:forEach var = "category" items = "${categories}">
-            <option value="${category}">${category}</option>
-        </c:forEach>
-    </select>
-    <input type="submit" value="Search by category" >
-</form>
-
-<form method="post" action="/save">
-    <input type="hidden" name="id" value=""/>
-    name:<br>
-    <input type="text" name="name"/>
-    <br>
-    description:<br>
-    <input type="text" name="description" >
-    <br>
-    category:<br>
-    <input type="text" name="category" >
-    <br><br>
-    <input type="submit" value="Add">
-</form>
-
 </body>
 </html>

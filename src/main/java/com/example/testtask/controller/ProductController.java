@@ -2,6 +2,7 @@ package com.example.testtask.controller;
 
 import com.example.testtask.model.Category;
 import com.example.testtask.model.Product;
+import com.example.testtask.model.Product_;
 import com.example.testtask.repository.CategoryRepository;
 import com.example.testtask.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -25,6 +32,9 @@ public class ProductController {
 
     @Autowired
     private CategoryRepository categoryRepository;
+
+    @PersistenceContext
+    private EntityManager em;
 
     @RequestMapping("/")
     public ModelAndView doHome() {
@@ -98,9 +108,8 @@ public class ProductController {
         return mv;
     }
 
-    ///////////////////////////////////
-    @RequestMapping(value = "/search", method = RequestMethod.POST)
-    public ModelAndView doSearch(@RequestParam("category") String category) {
+    @RequestMapping(value = "/searchcategory", method = RequestMethod.POST)
+    public ModelAndView doSearchCategory(@RequestParam("category") String category) {
         ModelAndView mv = new ModelAndView("index");
         List<Product> result = new ArrayList<>();
         Iterable<Product> all = productRepository.findAll();
@@ -110,42 +119,25 @@ public class ProductController {
         });
         mv.addObject("lists", result);
         mv.addObject("categories", categoryRepository.findAll());
-
         return mv;
     }
 
-//    @GetMapping("/greeting")
-//    public String greeting(@RequestParam(name = "name", required = false, defaultValue = "World")
-//                                   String name,
-//                           Map<String, Object> model
-//    ) {
-//        model.put("name", name);
-//        return "greeting";
-//    }
+    @RequestMapping(value = "/searchsubname", method = RequestMethod.POST)
+    public ModelAndView doSearchSubName(@RequestParam("subName") String subName) {
+        ModelAndView mv = new ModelAndView("/resultOfNameSearching");
 
-//    @GetMapping
-//    public String main(Map<String, Object> model) {
-//        Iterable<Product> products = productRepository.findAll();
-//        model.put("products", products);
-//        return "main";
-//    }
+        List<Product> result = new ArrayList<Product>();
 
-//    @PostMapping
-//    public String addProduct(@RequestParam String name
-//            , @RequestParam String description, @RequestParam String category, Map<String, Object> model) {
-//        Product product = new Product(name, description, category);
-//        productRepository.save(product);
-//
-//        Iterable<Product> products = productRepository.findAll();
-//        model.put("products", products);
-//        return "main";
-//    }
-//
-//    @DeleteMapping
-//    public String deleteProduct(@RequestParam Long id, Map<String, Object> model) {
-//        productRepository.deleteById(id);
-//        Iterable<Product> products = productRepository.findAll();
-//        model.put("products", products);
-//        return "main";
-//    }
+        CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
+        CriteriaQuery<Product> criteriaQuery = criteriaBuilder.createQuery(Product.class);
+        Root<Product> product = criteriaQuery.from(Product.class);
+        criteriaQuery.select(product);
+
+        criteriaQuery.where(criteriaBuilder.equal(
+                criteriaBuilder.substring(product.<String>get("name"), 1, subName.length()), subName));
+        Query query = em.createQuery(criteriaQuery);
+        result = query.getResultList();
+        mv.addObject("lists", result);
+        return mv;
+    }
 }
