@@ -86,7 +86,7 @@
     <select  name="category" required>
         <c:forEach var = "category" items = "${categories}">
             <option value="${category}">${category}</option>
-        </c:forEach>
+        </c:forEach>lo
     </select>
     <input type="submit" value="Search by category" >
 </form>

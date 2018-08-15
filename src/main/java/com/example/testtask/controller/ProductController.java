@@ -16,9 +16,7 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
+import javax.persistence.criteria.*;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -74,6 +72,7 @@ public class ProductController {
         ModelAndView mv = new ModelAndView("redirect:/");
         //mv.addObject("lists", productRepository.findById(id));
         productRepository.deleteById(id);
+        categoryRepository.deleteById(id);
         return mv;
     }
 
@@ -95,7 +94,6 @@ public class ProductController {
         product.setDescription(description);
         String[] categories = category.split(" ");
         Set<Category> catSet = product.getCategory();
-        // Set<Category> allCategories = Collections.setcategoryRepository.findAll();
         for (String c : categories) {
             Category categoryToFind = categoryRepository.findByCategory(c);
             if (categoryToFind == null) {
@@ -110,33 +108,32 @@ public class ProductController {
 
     @RequestMapping(value = "/searchcategory", method = RequestMethod.POST)
     public ModelAndView doSearchCategory(@RequestParam("category") String category) {
-        ModelAndView mv = new ModelAndView("index");
-        List<Product> result = new ArrayList<>();
-        Iterable<Product> all = productRepository.findAll();
-        all.forEach(product -> {
-            if (product.getCategory().contains(new Category(category)))
-                result.add(product);
-        });
+        ModelAndView mv = new ModelAndView("/resultOfSearching");
+        CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
+        CriteriaQuery<Product> criteriaQuery = criteriaBuilder.createQuery(Product.class);
+        Root<Product> product = criteriaQuery.from(Product.class);
+        Join <Product, Category> associate = product.join("category");
+        List<Predicate>predicates=new ArrayList<Predicate>();
+        predicates.add(criteriaBuilder.like(associate.<String>get("category"), category));
+        criteriaQuery.select(product);
+        criteriaQuery.where(predicates.toArray(new Predicate[0]));
+        Query query = em.createQuery(criteriaQuery);
+        List<Product> result = query.getResultList();
         mv.addObject("lists", result);
-        mv.addObject("categories", categoryRepository.findAll());
         return mv;
     }
 
     @RequestMapping(value = "/searchsubname", method = RequestMethod.POST)
     public ModelAndView doSearchSubName(@RequestParam("subName") String subName) {
-        ModelAndView mv = new ModelAndView("/resultOfNameSearching");
-
-        List<Product> result = new ArrayList<Product>();
-
+        ModelAndView mv = new ModelAndView("/resultOfSearching");
         CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
         CriteriaQuery<Product> criteriaQuery = criteriaBuilder.createQuery(Product.class);
         Root<Product> product = criteriaQuery.from(Product.class);
         criteriaQuery.select(product);
-
         criteriaQuery.where(criteriaBuilder.equal(
                 criteriaBuilder.substring(product.<String>get("name"), 1, subName.length()), subName));
         Query query = em.createQuery(criteriaQuery);
-        result = query.getResultList();
+        List<Product> result = query.getResultList();
         mv.addObject("lists", result);
         return mv;
     }
